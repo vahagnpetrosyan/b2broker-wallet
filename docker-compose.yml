@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: walletdb
+      POSTGRES_USER: walletuser
+      POSTGRES_PASSWORD: walletpass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      POSTGRES_DB: walletdb
+      POSTGRES_USER: walletuser
+      POSTGRES_PASSWORD: walletpass
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+
+volumes:
+  postgres_data:

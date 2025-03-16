@@ -1,0 +1,819 @@
+openapi: 3.0.3
+info:
+  title: Wallet API
+  version: 1.0.0
+  description: API documentation for Wallet & Transaction service
+paths:
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/transactions/:
+    get:
+      operationId: api_transactions_list
+      description: |-
+        API endpoint for transactions, supporting JSON:API filtering/sorting.
+        Creating a transaction will update the related wallet's balance.
+      parameters:
+      - in: query
+        name: amount
+        schema:
+          type: number
+      - name: filter[search]
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: page[number]
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page[size]
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: sort
+        required: false
+        in: query
+        description: '[list of fields to sort by](https://jsonapi.org/format/#fetching-sorting)'
+        schema:
+          type: string
+      - in: query
+        name: txid
+        schema:
+          type: string
+      - in: query
+        name: wallet
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+    post:
+      operationId: api_transactions_create
+      description: |-
+        API endpoint for transactions, supporting JSON:API filtering/sorting.
+        Creating a transaction will update the related wallet's balance.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/transactions/{id}/:
+    get:
+      operationId: api_transactions_retrieve
+      description: |-
+        API endpoint for transactions, supporting JSON:API filtering/sorting.
+        Creating a transaction will update the related wallet's balance.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+    put:
+      operationId: api_transactions_update
+      description: |-
+        API endpoint for transactions, supporting JSON:API filtering/sorting.
+        Creating a transaction will update the related wallet's balance.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+    patch:
+      operationId: api_transactions_partial_update
+      description: |-
+        API endpoint for transactions, supporting JSON:API filtering/sorting.
+        Creating a transaction will update the related wallet's balance.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+    delete:
+      operationId: api_transactions_destroy
+      description: |-
+        API endpoint for transactions, supporting JSON:API filtering/sorting.
+        Creating a transaction will update the related wallet's balance.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/wallets/:
+    get:
+      operationId: api_wallets_list
+      description: |-
+        API endpoint for wallets, with list, create, retrieve, update, destroy.
+        Supports filtering, sorting, and pagination as per JSON:API.
+      parameters:
+      - in: query
+        name: balance
+        schema:
+          type: number
+      - name: filter[search]
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: label
+        schema:
+          type: string
+      - name: page[number]
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page[size]
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: sort
+        required: false
+        in: query
+        description: '[list of fields to sort by](https://jsonapi.org/format/#fetching-sorting)'
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWalletList'
+          description: ''
+    post:
+      operationId: api_wallets_create
+      description: |-
+        API endpoint for wallets, with list, create, retrieve, update, destroy.
+        Supports filtering, sorting, and pagination as per JSON:API.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/WalletRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WalletRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WalletRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+          description: ''
+  /api/wallets/{id}/:
+    get:
+      operationId: api_wallets_retrieve
+      description: |-
+        API endpoint for wallets, with list, create, retrieve, update, destroy.
+        Supports filtering, sorting, and pagination as per JSON:API.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this wallet.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+          description: ''
+    put:
+      operationId: api_wallets_update
+      description: |-
+        API endpoint for wallets, with list, create, retrieve, update, destroy.
+        Supports filtering, sorting, and pagination as per JSON:API.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this wallet.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/WalletRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WalletRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WalletRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+          description: ''
+    patch:
+      operationId: api_wallets_partial_update
+      description: |-
+        API endpoint for wallets, with list, create, retrieve, update, destroy.
+        Supports filtering, sorting, and pagination as per JSON:API.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this wallet.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: '#/components/schemas/PatchedWalletRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWalletRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWalletRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+          description: ''
+    delete:
+      operationId: api_wallets_destroy
+      description: |-
+        API endpoint for wallets, with list, create, retrieve, update, destroy.
+        Supports filtering, sorting, and pagination as per JSON:API.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this wallet.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    PaginatedTransactionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page[number]=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page[number]=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    PaginatedWalletList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page[number]=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page[number]=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Wallet'
+    PatchedTransactionRequest:
+      type: object
+      description: |-
+        A `ModelSerializer` is just a regular `Serializer`, except that:
+
+        * A set of default fields are automatically populated.
+        * A set of default validators are automatically populated.
+        * Default `.create()` and `.update()` implementations are provided.
+
+        The process of automatically determining a set of serializer fields
+        based on the model fields is reasonably complex, but you almost certainly
+        don't need to dig into the implementation.
+
+        If the `ModelSerializer` class *doesn't* generate the set of fields that
+        you need you should either declare the extra/differing fields explicitly on
+        the serializer class, or simply use a `Serializer` class.
+
+
+        Included Mixins:
+
+        * A mixin class to enable sparse fieldsets is included
+        * A mixin class to enable validation of included resources is included
+      properties:
+        txid:
+          type: string
+          minLength: 1
+          maxLength: 255
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,18})?$
+        wallet:
+          type: integer
+    PatchedWalletRequest:
+      type: object
+      description: |-
+        A `ModelSerializer` is just a regular `Serializer`, except that:
+
+        * A set of default fields are automatically populated.
+        * A set of default validators are automatically populated.
+        * Default `.create()` and `.update()` implementations are provided.
+
+        The process of automatically determining a set of serializer fields
+        based on the model fields is reasonably complex, but you almost certainly
+        don't need to dig into the implementation.
+
+        If the `ModelSerializer` class *doesn't* generate the set of fields that
+        you need you should either declare the extra/differing fields explicitly on
+        the serializer class, or simply use a `Serializer` class.
+
+
+        Included Mixins:
+
+        * A mixin class to enable sparse fieldsets is included
+        * A mixin class to enable validation of included resources is included
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 100
+    Transaction:
+      type: object
+      description: |-
+        A `ModelSerializer` is just a regular `Serializer`, except that:
+
+        * A set of default fields are automatically populated.
+        * A set of default validators are automatically populated.
+        * Default `.create()` and `.update()` implementations are provided.
+
+        The process of automatically determining a set of serializer fields
+        based on the model fields is reasonably complex, but you almost certainly
+        don't need to dig into the implementation.
+
+        If the `ModelSerializer` class *doesn't* generate the set of fields that
+        you need you should either declare the extra/differing fields explicitly on
+        the serializer class, or simply use a `Serializer` class.
+
+
+        Included Mixins:
+
+        * A mixin class to enable sparse fieldsets is included
+        * A mixin class to enable validation of included resources is included
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        txid:
+          type: string
+          maxLength: 255
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,18})?$
+        wallet:
+          type: integer
+      required:
+      - amount
+      - id
+      - txid
+      - wallet
+    TransactionRequest:
+      type: object
+      description: |-
+        A `ModelSerializer` is just a regular `Serializer`, except that:
+
+        * A set of default fields are automatically populated.
+        * A set of default validators are automatically populated.
+        * Default `.create()` and `.update()` implementations are provided.
+
+        The process of automatically determining a set of serializer fields
+        based on the model fields is reasonably complex, but you almost certainly
+        don't need to dig into the implementation.
+
+        If the `ModelSerializer` class *doesn't* generate the set of fields that
+        you need you should either declare the extra/differing fields explicitly on
+        the serializer class, or simply use a `Serializer` class.
+
+
+        Included Mixins:
+
+        * A mixin class to enable sparse fieldsets is included
+        * A mixin class to enable validation of included resources is included
+      properties:
+        txid:
+          type: string
+          minLength: 1
+          maxLength: 255
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,18})?$
+        wallet:
+          type: integer
+      required:
+      - amount
+      - txid
+      - wallet
+    Wallet:
+      type: object
+      description: |-
+        A `ModelSerializer` is just a regular `Serializer`, except that:
+
+        * A set of default fields are automatically populated.
+        * A set of default validators are automatically populated.
+        * Default `.create()` and `.update()` implementations are provided.
+
+        The process of automatically determining a set of serializer fields
+        based on the model fields is reasonably complex, but you almost certainly
+        don't need to dig into the implementation.
+
+        If the `ModelSerializer` class *doesn't* generate the set of fields that
+        you need you should either declare the extra/differing fields explicitly on
+        the serializer class, or simply use a `Serializer` class.
+
+
+        Included Mixins:
+
+        * A mixin class to enable sparse fieldsets is included
+        * A mixin class to enable validation of included resources is included
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        label:
+          type: string
+          maxLength: 100
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,18})?$
+          readOnly: true
+      required:
+      - balance
+      - id
+      - label
+    WalletRequest:
+      type: object
+      description: |-
+        A `ModelSerializer` is just a regular `Serializer`, except that:
+
+        * A set of default fields are automatically populated.
+        * A set of default validators are automatically populated.
+        * Default `.create()` and `.update()` implementations are provided.
+
+        The process of automatically determining a set of serializer fields
+        based on the model fields is reasonably complex, but you almost certainly
+        don't need to dig into the implementation.
+
+        If the `ModelSerializer` class *doesn't* generate the set of fields that
+        you need you should either declare the extra/differing fields explicitly on
+        the serializer class, or simply use a `Serializer` class.
+
+
+        Included Mixins:
+
+        * A mixin class to enable sparse fieldsets is included
+        * A mixin class to enable validation of included resources is included
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - label
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
