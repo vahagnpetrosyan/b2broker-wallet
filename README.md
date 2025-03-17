@@ -31,6 +31,91 @@ This project is a production-ready Django REST API server built using Django Res
 
 ---
 
+## Data Models
+
+
+### Wallet Model
+
+The **Wallet** model represents a financial wallet that holds a balance derived from related transactions.
+
+#### Fields
+
+- **id**
+  - **Type:** AutoField (Primary Key)
+  - **Description:** A unique identifier for each wallet.
+
+- **label**
+  - **Type:** CharField (max_length=100)
+  - **Description:** A human-readable label or name for the wallet.
+  - **Database Index:**  
+    An index is created on this field to optimize search queries and sorting by label.
+
+- **balance**
+  - **Type:** DecimalField (max_digits=36, decimal_places=18)
+  - **Description:** The wallet’s current balance, computed as the sum of all related transaction amounts.
+  - **Business Rule:**  
+    - The balance should **never be negative**. Custom logic in the model (or during transaction processing) prevents any transaction that would result in a negative balance.
+
+#### Database Indexes for Wallet
+
+- **Index on `label`:**  
+  Improves performance when filtering or ordering wallets by their label.
+
+---
+
+### Transaction Model
+
+The **Transaction** model represents an individual financial operation that affects a wallet’s balance. Transactions may be deposits (positive amounts) or withdrawals (negative amounts).
+
+#### Fields
+
+- **id**
+  - **Type:** AutoField (Primary Key)
+  - **Description:** A unique identifier for each transaction.
+
+- **wallet**
+  - **Type:** ForeignKey to the Wallet model
+  - **Description:** The wallet that the transaction is associated with.
+  - **Database Index:**  
+    An index on the foreign key improves performance when filtering transactions by wallet.
+
+- **txid**
+  - **Type:** CharField (max_length=255, unique=True)
+  - **Description:** A unique transaction identifier.
+  - **Database Index:**  
+    The uniqueness constraint automatically creates a unique index to ensure that each transaction is uniquely identifiable.
+
+- **amount**
+  - **Type:** DecimalField (max_digits=36, decimal_places=18)
+  - **Description:** The transaction amount.
+  - **Business Rule:**  
+    - Positive values indicate deposits.
+    - Negative values indicate withdrawals.
+    - The creation, update, or deletion of a transaction updates the associated wallet’s balance.
+    - A transaction is not allowed if it would cause the wallet’s balance to become negative.
+
+#### Database Indexes for Transaction
+
+- **Index on `wallet`:**  
+  Speeds up lookups and filtering of transactions by the wallet.
+- **Unique Index on `txid`:**  
+  Ensures that duplicate transactions are not allowed.
+
+---
+
+### Business Logic and Data Integrity
+
+- **Wallet Balance Integrity:**  
+  The wallet’s balance is computed as the sum of all transaction amounts related to that wallet. Custom logic in the model's `save()` and `delete()` methods (or using signals) ensures that a wallet’s balance never becomes negative.
+
+- **Atomic Updates:**  
+  Database transactions (atomic blocks and row-level locking) are used when updating the wallet’s balance. This prevents race conditions and ensures data consistency.
+
+- **Optimized Queries:**  
+  The use of indexes on key fields (`label`, `txid`, and the `wallet` foreign key) improves performance for filtering, sorting, and lookup operations, ensuring that the API remains responsive even as data grows.
+
+---
+
 ## Installation
 
 ### Prerequisites
